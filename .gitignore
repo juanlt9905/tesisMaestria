@@ -1,0 +1,15 @@
+# Archivos de datos generados
+*.npy
+*.npz
+*.csv
+*.parquet
+*.h5
+
+# Modelos guardados (Pesos y estructuras)
+*.pkl
+*.joblib
+*.model
+
+# Carpetas de entornos virtuales o configuraciones locales
+__pycache__/
+.ipynb_checkpoints/

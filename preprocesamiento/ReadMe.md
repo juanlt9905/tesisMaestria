@@ -7,4 +7,6 @@ medida de calidad. Se utilizó un método supervisado, con el modulo DecisionTre
 
 --> EDA_b_flavor.ipynb: Notebook donde se realiza un analisis exploratorio del conjunto de datos de etiquetado de mesones.
 
---> seleccion_instancias_lightgbm.ipynb:
+--> seleccion_instancias_lightgbm.ipynb: Notebook que se encarga del preprosesamiento de instancias mediante un clasificador 'Oraculo', el cual es entrenado con millones de instancias en un tiempo corto (lightgbm), le asigna a cada una un valor de probabilidad de pertenecer a la clase 1. Esto permite crear subconjuntos de instancias mas pequeños, con las instancias mas informativas (las instanciasde mayoy incertidumbre, es decir, con probabilidad alrededor de 0.5).
+
+->

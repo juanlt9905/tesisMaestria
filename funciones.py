@@ -430,6 +430,103 @@ def frente_pareto(instancia, titulo_grafico, titulo_eje_x, titulo_eje_y):
     # plt.savefig('frente_pareto_10k_wrapper.png', dpi=300, bbox_inches='tight')
     plt.show()
 
+    import numpy as np
+import matplotlib.pyplot as plt
+
+def frente_pareto2(instancia, titulo_grafico, titulo_eje_x, titulo_eje_y):
+    """
+    Grafica el Frente de Pareto y devuelve los datos exactos del frente (k y Exactitud).
+    """
+
+    # Helper function to identify non-dominated solutions (the Pareto front)
+    def identify_pareto(scores):
+        """Identifica las soluciones no dominadas (Maximización)."""
+        pop_size = scores.shape[0]
+        is_pareto = np.ones(pop_size, dtype=bool)
+        for i in range(pop_size):
+            for j in range(pop_size):
+                if i != j:
+                    # Compara si la solución j domina a la i
+                    if (scores[j, 0] >= scores[i, 0] and scores[j, 1] >= scores[i, 1]) and \
+                       (scores[j, 0] > scores[i, 0] or scores[j, 1] > scores[i, 1]):
+                        is_pareto[i] = False
+                        break
+        return is_pareto
+
+    # Extraemos las aptitudes de la última generación 
+    # Obj 0 = Calidad (Exactitud) [0, 1]
+    # Obj 1 = Reducción Normalizada [0, 1]
+    fitness_valores = instancia.last_generation_fitness
+
+    # Separamos para visualización general
+    y_todos = fitness_valores[:, 0]  # Calidad
+    x_todos = fitness_valores[:, 1]  # Reducción
+
+    # Encontramos el Frente de Pareto real 
+    indices_pareto = identify_pareto(fitness_valores)
+    pareto_front = fitness_valores[indices_pareto]
+
+    # ==========================================
+    # NUEVO BLOQUE: Extracción de datos para exportar
+    # ==========================================
+    pareto_datos_exportados = []
+    posiciones_optimas = np.where(indices_pareto)[0]
+    
+    for idx in posiciones_optimas:
+        calidad = fitness_valores[idx, 0]
+        # Extraer el cromosoma y sumar para tener la cantidad exacta de variables (k)
+        cromosoma = instancia.population[idx]
+        numero_variables = int(np.sum(cromosoma))
+        
+        pareto_datos_exportados.append({
+            'num_vars': numero_variables,
+            'exactitud': calidad  # <-- ACTUALIZADO AQUÍ
+        })
+    
+    # Ordenar la lista por número de variables
+    pareto_datos_exportados = sorted(pareto_datos_exportados, key=lambda x: x['num_vars'])
+    # ==========================================
+
+    # Ordenamos el frente por Reducción (para dibujar la línea continua en la gráfica)
+    sorted_indices = np.argsort(pareto_front[:, 1])
+    x_pareto = pareto_front[sorted_indices, 1]
+    y_pareto = pareto_front[sorted_indices, 0]
+
+    plt.figure(figsize=(8, 8))
+    # Graficamos todas las soluciones de la última generación en gris suave
+    plt.scatter(x_todos, y_todos, color='gray', alpha=0.4, s=60, label='Última Generación (Todos)')
+
+    # Graficamos las soluciones del Frente de Pareto en rojo
+    plt.scatter(x_pareto, y_pareto, color='red', s=150, marker='D', label='Frente de Pareto', edgecolors='black')
+    
+    # Dibujamos la línea del Frente de Pareto
+    plt.plot(x_pareto, y_pareto, color='red', linestyle='--', linewidth=3)
+    
+    plt.title(titulo_grafico, fontsize= 22)
+    plt.xlabel(titulo_eje_x, fontsize = 20)
+    plt.ylabel(titulo_eje_y, fontsize=20)
+
+    plt.tick_params(axis='both', which='major', labelsize=18)
+    plt.grid(True, linestyle=':', alpha=0.6)
+    
+    leg = plt.legend(
+        prop={'size': 20}, loc='best',                 
+        frameon=True, shadow=True,                
+        markerscale=1.5, labelspacing=1.2,           
+        borderpad=1.0              
+    )
+
+    for text in leg.get_texts():
+        text.set_fontsize(20) 
+
+    leg.get_frame().set_linewidth(1.5)
+
+    plt.tight_layout()
+    plt.show()
+
+    # Devolvemos la lista estructurada
+    return pareto_datos_exportados
+
 
 def evolucion(instancia, titulo_grafico):
 
